@@ -1,7 +1,9 @@
 "use client"
 
+import { motion } from "framer-motion"
 import { Clock, MapPin, ChevronRight } from "lucide-react"
 import type { GamePrediction } from "@/lib/football-data"
+import { smoothSpring } from "@/lib/animations"
 
 interface GameCardProps {
   game: GamePrediction
@@ -14,13 +16,16 @@ export function GameCard({ game, isSelected, onSelect }: GameCardProps) {
   const awayWp = Math.round(game.awayTeam.winProbability * 100)
 
   return (
-    <button
+    <motion.button
       onClick={() => onSelect(game.id)}
+      whileHover={{ scale: 1.02, y: -3 }}
+      whileTap={{ scale: 0.98 }}
+      transition={smoothSpring}
       className={`w-full text-left rounded-lg border transition-all ${
         isSelected
           ? "border-primary/50 bg-primary/5 shadow-[0_0_20px_rgba(34,197,94,0.05)]"
           : "border-border bg-card hover:border-border/80 hover:bg-card/80"
-      } p-4`}
+      } p-4 ambient-glow`}
       aria-pressed={isSelected}
       aria-label={`${game.awayTeam.name} at ${game.homeTeam.name} prediction`}
     >
@@ -73,17 +78,26 @@ export function GameCard({ game, isSelected, onSelect }: GameCardProps) {
         </div>
         <div className="flex items-center gap-1.5">
           <ConfidenceBadge confidence={game.confidence} />
-          <ChevronRight className={`h-3.5 w-3.5 transition-colors ${isSelected ? "text-primary" : "text-muted-foreground"}`} />
+          <motion.div
+            animate={{ x: isSelected ? 2 : 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+          >
+            <ChevronRight className={`h-3.5 w-3.5 transition-colors ${isSelected ? "text-primary" : "text-muted-foreground"}`} />
+          </motion.div>
         </div>
       </div>
-    </button>
+    </motion.button>
   )
 }
 
 function StatusBadge({ status, quarter, gameTime }: { status: string; quarter?: string; gameTime?: string }) {
   if (status === "live") {
     return (
-      <div className="flex items-center gap-1.5 rounded-full bg-destructive/10 px-2 py-0.5">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="flex items-center gap-1.5 rounded-full bg-destructive/10 px-2 py-0.5 animate-glow-pulse"
+      >
         <span className="relative flex h-1.5 w-1.5">
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-destructive opacity-75" />
           <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-destructive" />
@@ -91,7 +105,7 @@ function StatusBadge({ status, quarter, gameTime }: { status: string; quarter?: 
         <span className="text-[10px] font-semibold text-destructive">
           {quarter} {gameTime}
         </span>
-      </div>
+      </motion.div>
     )
   }
   if (status === "final") {
@@ -134,12 +148,14 @@ function TeamRow({
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-2.5">
-        <div
+        <motion.div
+          whileHover={{ scale: 1.1, rotate: -4 }}
+          transition={smoothSpring}
           className="flex h-9 w-9 items-center justify-center rounded-md text-xs font-bold border border-border"
           style={{ backgroundColor: `${color}15`, color }}
         >
           {abbreviation}
-        </div>
+        </motion.div>
         <div>
           <div className="flex items-center gap-1.5">
             <span className={`text-sm font-semibold ${isWinning ? "text-foreground" : "text-foreground/80"}`}>
@@ -154,9 +170,14 @@ function TeamRow({
       </div>
       <div className="flex items-center gap-3">
         {(isLive || isFinal) && score !== undefined && (
-          <span className={`text-lg font-bold font-mono ${isWinning ? "text-foreground" : "text-muted-foreground"}`}>
+          <motion.span
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={smoothSpring}
+            className={`text-lg font-bold font-mono ${isWinning ? "text-foreground" : "text-muted-foreground"}`}
+          >
             {score}
-          </span>
+          </motion.span>
         )}
         <div className="flex flex-col items-end">
           <span className={`text-sm font-bold font-mono ${wp >= 50 ? "text-success" : "text-muted-foreground"}`}>

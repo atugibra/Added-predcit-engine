@@ -1,8 +1,10 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { motion } from "framer-motion"
 import { getLeagues, getTeams } from "@/lib/api"
 import { Trophy, ChevronDown, Zap, ArrowRightLeft, Shield } from "lucide-react"
+import { fadeInScale, smoothSpring } from "@/lib/animations"
 
 interface League {
   id: number
@@ -71,12 +73,22 @@ export function PredictionTeamSelector({ onGenerate, isLoading }: PredictionTeam
   }
 
   return (
-    <div className="rounded-lg border border-border bg-card p-6">
+    <motion.div
+      variants={fadeInScale}
+      initial="hidden"
+      animate="visible"
+      transition={smoothSpring}
+      className="rounded-lg border border-border bg-card p-6 ambient-glow"
+    >
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+        <motion.div
+          whileHover={{ scale: 1.1, rotate: -8 }}
+          transition={smoothSpring}
+          className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary"
+        >
           <Zap className="h-5 w-5" />
-        </div>
+        </motion.div>
         <div>
           <h2 className="text-lg font-semibold text-foreground">Match Prediction</h2>
           <p className="text-xs text-muted-foreground">Select a league and two teams to generate a prediction</p>
@@ -202,9 +214,12 @@ export function PredictionTeamSelector({ onGenerate, isLoading }: PredictionTeam
 
       {/* Generate Button */}
       <div className="mt-6">
-        <button
+        <motion.button
           onClick={() => canGenerate && onGenerate(homeTeam, awayTeam)}
           disabled={!canGenerate}
+          whileHover={canGenerate ? { scale: 1.02, boxShadow: "0 0 20px 2px oklch(0.65 0.19 145 / 0.2)" } : {}}
+          whileTap={canGenerate ? { scale: 0.98 } : {}}
+          transition={smoothSpring}
           className="flex items-center justify-center gap-2 w-full rounded-lg bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
         >
           {isLoading ? (
@@ -221,8 +236,8 @@ export function PredictionTeamSelector({ onGenerate, isLoading }: PredictionTeam
               Generate Prediction
             </>
           )}
-        </button>
+        </motion.button>
       </div>
-    </div>
+    </motion.div>
   )
 }

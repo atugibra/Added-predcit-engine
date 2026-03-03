@@ -1,5 +1,6 @@
 "use client"
 
+import { motion } from "framer-motion"
 import type { PredictionResponse } from "@/lib/api"
 import {
   Target, TrendingUp, Shield, Swords, BarChart3,
@@ -11,6 +12,7 @@ import {
   ResponsiveContainer, Tooltip,
 } from "recharts"
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart"
+import { fadeUp, fadeInScale, staggerContainer, smoothSpring, gentleSpring } from "@/lib/animations"
 
 interface PredictionResultProps {
   data: PredictionResponse
@@ -24,45 +26,84 @@ function ScoreHero({ data }: { data: PredictionResponse }) {
     "bg-muted/30 text-muted-foreground border-border"
 
   return (
-    <div className="rounded-lg border border-border bg-card p-6">
+    <motion.div
+      variants={fadeInScale}
+      initial="hidden"
+      animate="visible"
+      transition={smoothSpring}
+      className="rounded-lg border border-border bg-card p-6 ambient-glow"
+    >
       <div className="flex items-center justify-between mb-5">
-        <div className="flex items-center gap-2">
+        <motion.div
+          initial={{ opacity: 0, x: -12 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ ...gentleSpring, delay: 0.1 }}
+          className="flex items-center gap-2"
+        >
           <Target className="h-4 w-4 text-primary" />
           <h3 className="text-sm font-semibold text-foreground">Predicted Score</h3>
-        </div>
-        <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-wider ${confidenceColor}`}>
+        </motion.div>
+        <motion.span
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ ...smoothSpring, delay: 0.3 }}
+          className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-wider ${confidenceColor}`}
+        >
           <span className="relative flex h-1.5 w-1.5">
             <span className={`absolute inline-flex h-full w-full rounded-full opacity-75 ${data.confidence === "high" ? "bg-success animate-ping" : data.confidence === "medium" ? "bg-warning animate-ping" : "bg-muted-foreground"}`} />
             <span className={`relative inline-flex h-1.5 w-1.5 rounded-full ${data.confidence === "high" ? "bg-success" : data.confidence === "medium" ? "bg-warning" : "bg-muted-foreground"}`} />
           </span>
           {data.confidence} confidence
-        </span>
+        </motion.span>
       </div>
 
       <div className="flex items-center justify-center gap-6">
-        <div className="flex flex-col items-center gap-2 flex-1">
-          <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10 border border-primary/20 text-primary">
+        <motion.div
+          initial={{ opacity: 0, x: -24 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ ...smoothSpring, delay: 0.15 }}
+          className="flex flex-col items-center gap-2 flex-1"
+        >
+          <motion.div
+            whileHover={{ scale: 1.1, rotate: -6 }}
+            transition={smoothSpring}
+            className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10 border border-primary/20 text-primary"
+          >
             <Shield className="h-7 w-7" />
-          </div>
+          </motion.div>
           <span className="text-sm font-semibold text-foreground text-center leading-tight">{data.home_team}</span>
           <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Home</span>
-        </div>
+        </motion.div>
 
-        <div className="flex items-center gap-3">
+        <motion.div
+          initial={{ opacity: 0, scale: 0 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.4 }}
+          className="flex items-center gap-3"
+        >
           <span className="text-5xl font-bold font-mono text-foreground tabular-nums">{data.predicted_score.home}</span>
           <span className="text-2xl font-light text-muted-foreground">-</span>
           <span className="text-5xl font-bold font-mono text-foreground tabular-nums">{data.predicted_score.away}</span>
-        </div>
+        </motion.div>
 
-        <div className="flex flex-col items-center gap-2 flex-1">
-          <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-info/10 border border-info/20 text-info">
+        <motion.div
+          initial={{ opacity: 0, x: 24 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ ...smoothSpring, delay: 0.15 }}
+          className="flex flex-col items-center gap-2 flex-1"
+        >
+          <motion.div
+            whileHover={{ scale: 1.1, rotate: 6 }}
+            transition={smoothSpring}
+            className="flex h-14 w-14 items-center justify-center rounded-xl bg-info/10 border border-info/20 text-info"
+          >
             <Shield className="h-7 w-7" />
-          </div>
+          </motion.div>
           <span className="text-sm font-semibold text-foreground text-center leading-tight">{data.away_team}</span>
           <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Away</span>
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   )
 }
 
@@ -82,14 +123,27 @@ function ProbabilityGauge({ data }: { data: PredictionResponse }) {
   const awayArc = (data.away_win_prob * circumference)
 
   return (
-    <div className="rounded-lg border border-border bg-card p-6">
+    <motion.div
+      variants={fadeUp}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true }}
+      transition={{ ...smoothSpring, delay: 0.1 }}
+      className="rounded-lg border border-border bg-card p-6 ambient-glow"
+    >
       <div className="flex items-center gap-2 mb-5">
         <BarChart3 className="h-4 w-4 text-primary" />
         <h3 className="text-sm font-semibold text-foreground">Win Probability</h3>
       </div>
 
       <div className="flex flex-col items-center gap-5">
-        <div className="relative h-44 w-44">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.6, rotate: -90 }}
+          whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
+          viewport={{ once: true }}
+          transition={{ type: "spring", stiffness: 80, damping: 16, delay: 0.2 }}
+          className="relative h-44 w-44"
+        >
           <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90" aria-hidden="true">
             <circle cx="60" cy="60" r={radius} fill="none" stroke="oklch(0.19 0.008 260)" strokeWidth="10" />
             <circle cx="60" cy="60" r={radius} fill="none" stroke="oklch(0.65 0.19 145)" strokeWidth="10" strokeDasharray={`${homeArc} ${circumference}`} strokeLinecap="round" className="transition-all duration-1000 ease-out" />
@@ -102,7 +156,7 @@ function ProbabilityGauge({ data }: { data: PredictionResponse }) {
               {favored === "home" ? data.home_team : favored === "away" ? data.away_team : "Draw"}
             </span>
           </div>
-        </div>
+        </motion.div>
 
         <div className="w-full">
           <div className="flex h-3 rounded-full overflow-hidden">
@@ -128,7 +182,7 @@ function ProbabilityGauge({ data }: { data: PredictionResponse }) {
           ))}
         </div>
       </div>
-    </div>
+    </motion.div>
   )
 }
 
@@ -149,7 +203,14 @@ function ProbabilityBarChart({ data }: { data: PredictionResponse }) {
   }
 
   return (
-    <div className="rounded-lg border border-border bg-card p-6">
+    <motion.div
+      variants={fadeUp}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true }}
+      transition={{ ...smoothSpring, delay: 0.15 }}
+      className="rounded-lg border border-border bg-card p-6 ambient-glow"
+    >
       <div className="flex items-center gap-2 mb-5">
         <BarChart3 className="h-4 w-4 text-primary" />
         <h3 className="text-sm font-semibold text-foreground">Outcome Distribution</h3>
@@ -185,7 +246,7 @@ function ProbabilityBarChart({ data }: { data: PredictionResponse }) {
           </Bar>
         </BarChart>
       </ChartContainer>
-    </div>
+    </motion.div>
   )
 }
 
@@ -214,7 +275,14 @@ function TeamRadarChart({ data }: { data: PredictionResponse }) {
   }
 
   return (
-    <div className="rounded-lg border border-border bg-card p-6">
+    <motion.div
+      variants={fadeUp}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true }}
+      transition={{ ...smoothSpring, delay: 0.2 }}
+      className="rounded-lg border border-border bg-card p-6 ambient-glow"
+    >
       <div className="flex items-center gap-2 mb-2">
         <RadarIcon className="h-4 w-4 text-primary" />
         <h3 className="text-sm font-semibold text-foreground">Performance Radar</h3>
@@ -281,7 +349,7 @@ function TeamRadarChart({ data }: { data: PredictionResponse }) {
           <span className="text-xs font-medium text-foreground">{data.away_team}</span>
         </div>
       </div>
-    </div>
+    </motion.div>
   )
 }
 
@@ -336,7 +404,14 @@ function StatComparison({ data }: { data: PredictionResponse }) {
   ]
 
   return (
-    <div className="rounded-lg border border-border bg-card p-6">
+    <motion.div
+      variants={fadeUp}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true }}
+      transition={{ ...smoothSpring, delay: 0.25 }}
+      className="rounded-lg border border-border bg-card p-6 ambient-glow"
+    >
       <div className="flex items-center gap-2 mb-2">
         <Swords className="h-4 w-4 text-primary" />
         <h3 className="text-sm font-semibold text-foreground">Team Comparison</h3>
@@ -373,7 +448,7 @@ function StatComparison({ data }: { data: PredictionResponse }) {
           />
         ))}
       </div>
-    </div>
+    </motion.div>
   )
 }
 
@@ -389,7 +464,14 @@ function ConfidenceMeter({ data }: { data: PredictionResponse }) {
   }
 
   return (
-    <div className="rounded-lg border border-border bg-card p-6">
+    <motion.div
+      variants={fadeUp}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true }}
+      transition={{ ...smoothSpring, delay: 0.3 }}
+      className="rounded-lg border border-border bg-card p-6 ambient-glow"
+    >
       <div className="flex items-center gap-2 mb-4">
         <TrendingUp className="h-4 w-4 text-primary" />
         <h3 className="text-sm font-semibold text-foreground">Model Confidence</h3>
@@ -422,7 +504,7 @@ function ConfidenceMeter({ data }: { data: PredictionResponse }) {
         <Info className="h-3.5 w-3.5 text-muted-foreground shrink-0 mt-0.5" />
         <p className="text-xs text-muted-foreground leading-relaxed">{descriptions[level]}</p>
       </div>
-    </div>
+    </motion.div>
   )
 }
 
@@ -556,7 +638,12 @@ function ordinal(n: number): string {
 /* ────────────────────── Main Export ──────────────────────── */
 export function PredictionResult({ data }: PredictionResultProps) {
   return (
-    <div className="flex flex-col gap-4">
+    <motion.div
+      variants={staggerContainer}
+      initial="hidden"
+      animate="visible"
+      className="flex flex-col gap-4"
+    >
       {/* Score Hero - Full Width */}
       <ScoreHero data={data} />
 
@@ -577,6 +664,6 @@ export function PredictionResult({ data }: PredictionResultProps) {
           <ConfidenceMeter data={data} />
         </div>
       </div>
-    </div>
+    </motion.div>
   )
 }

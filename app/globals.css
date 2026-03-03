@@ -133,6 +133,98 @@
   }
 }
 
+/* ─── Ambient glow effects ─── */
+.ambient-glow {
+  position: relative;
+}
+.ambient-glow::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    oklch(0.65 0.19 145 / 0.2),
+    transparent 40%,
+    transparent 60%,
+    oklch(0.6 0.16 250 / 0.15)
+  );
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.ambient-glow:hover::before {
+  opacity: 1;
+}
+
+/* ─── Shimmer loading effect ─── */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    oklch(0.19 0.008 260) 25%,
+    oklch(0.24 0.008 260) 50%,
+    oklch(0.19 0.008 260) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+}
+
+/* ─── Subtle floating animation ─── */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* ─── Gradient border animation ─── */
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.gradient-border {
+  background-size: 200% 200%;
+  animation: gradient-shift 4s ease infinite;
+}
+
+/* ─── Glow pulse for active elements ─── */
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 oklch(0.65 0.19 145 / 0); }
+  50% { box-shadow: 0 0 16px 2px oklch(0.65 0.19 145 / 0.15); }
+}
+.animate-glow-pulse {
+  animation: glow-pulse 2.5s ease-in-out infinite;
+}
+
+/* ─── Subtle background grid pattern ─── */
+.bg-grid {
+  background-image:
+    linear-gradient(oklch(0.22 0.01 260 / 0.4) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(0.22 0.01 260 / 0.4) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* ─── Motion reduced preference ─── */
+@media (prefers-reduced-motion: reduce) {
+  .ambient-glow::before,
+  .shimmer,
+  .animate-float,
+  .gradient-border,
+  .animate-glow-pulse {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
 /* Custom scrollbar */
 .scrollbar-thin {
   scrollbar-width: thin;

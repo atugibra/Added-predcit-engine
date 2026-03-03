@@ -1,11 +1,10 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import { Trophy, TrendingUp, TrendingDown, Minus, Loader2 } from "lucide-react"
 import { getStandings } from "@/lib/api"
-
-// Strict typography scale: text-sm (14px), text-base (16px), text-lg (20px), text-2xl (24px)
-// Strict spacing: 8px grid (p-2, p-4, mt-2, mt-4, gap-2, gap-4)
+import { fadeUp, fadeInScale, staggerContainer, tableRowVariant, smoothSpring, gentleSpring } from "@/lib/animations"
 
 interface StandingsTableProps {
     splitView: "overall" | "home" | "away"
@@ -17,11 +16,8 @@ export function StandingsTable({ splitView }: StandingsTableProps) {
 
     useEffect(() => {
         setLoading(true)
-        // Fetch real data from the Railway backend using the api wrapper
-        // V1 schema: { rank, team, points, matches_played, wins, draws, losses, form }
         getStandings().then((res) => {
             if (res && res.data) {
-                // Determine which stats to show based on the split view
                 const mappedData = res.data.map((d: any) => ({
                     rank: d.rank || 0,
                     team: d.team || 'Unknown',
@@ -32,10 +28,8 @@ export function StandingsTable({ splitView }: StandingsTableProps) {
                     points: splitView === "overall" ? d.points : splitView === "home" ? d.home_points : d.away_points,
                     form: d.form ? d.form.split('').slice(0, 5) : []
                 }))
-                // Sort by points for the specific view
-                mappedData.sort((a, b) => b.points - a.points)
-                // Re-rank them
-                mappedData.forEach((d, i) => d.rank = i + 1)
+                mappedData.sort((a: any, b: any) => b.points - a.points)
+                mappedData.forEach((d: any, i: number) => d.rank = i + 1)
                 setData(mappedData)
             }
         }).catch(err => {
@@ -54,12 +48,24 @@ export function StandingsTable({ splitView }: StandingsTableProps) {
     }
 
     return (
-        <div className="rounded-lg border border-border bg-card p-4 shadow-sm">
+        <motion.div
+            variants={fadeInScale}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-40px" }}
+            transition={smoothSpring}
+            className="rounded-lg border border-border bg-card p-4 shadow-sm ambient-glow"
+        >
             <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-lg font-semibold flex items-center gap-2">
+                <motion.h3
+                    initial={{ opacity: 0, x: -12 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ ...gentleSpring, delay: 0.1 }}
+                    className="text-lg font-semibold flex items-center gap-2"
+                >
                     <Trophy className="h-5 w-5 text-primary" />
                     League Standings <span className="text-sm font-normal text-muted-foreground">({splitView.toUpperCase()})</span>
-                </h3>
+                </motion.h3>
             </div>
 
             <div className="overflow-x-auto scrollbar-thin">
@@ -76,50 +82,82 @@ export function StandingsTable({ splitView }: StandingsTableProps) {
                             <th className="p-4 font-medium text-muted-foreground text-right">Form</th>
                         </tr>
                     </thead>
-                    <tbody className="relative">
-                        {loading && (
-                            <tr>
-                                <td colSpan={8} className="p-12 text-center text-muted-foreground">
-                                    <div className="flex flex-col items-center justify-center gap-2">
-                                        <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                                        <span>Loading live standings...</span>
-                                    </div>
-                                </td>
-                            </tr>
-                        )}
-                        {!loading && data.length === 0 && (
-                            <tr>
-                                <td colSpan={8} className="p-8 text-center text-muted-foreground font-medium">
-                                    No data available. Try Syncing from the Admin panel.
-                                </td>
-                            </tr>
-                        )}
-                        {!loading && data.map((row, idx) => (
-                            <tr
-                                key={row.team}
-                                className={`border-b border-border/50 hover:bg-muted/30 transition-colors ${idx < 4 ? 'bg-primary/5' : ''}`}
-                            >
-                                <td className="p-4 font-mono text-muted-foreground">{row.rank}</td>
-                                <td className="p-4 font-medium text-base">{row.team}</td>
-                                <td className="p-4 text-center text-muted-foreground">{row.played || 0}</td>
-                                <td className="p-4 text-center text-muted-foreground">{row.won || 0}</td>
-                                <td className="p-4 text-center text-muted-foreground">{row.drawn || 0}</td>
-                                <td className="p-4 text-center text-muted-foreground">{row.lost || 0}</td>
-                                <td className="p-4 text-center font-bold text-base text-primary">{row.points || 0}</td>
-                                <td className="p-4">
-                                    <div className="flex items-center justify-end gap-2">
-                                        {row.form && row.form.map((f: string, i: number) => (
-                                            <div key={i} className="flex h-6 w-6 items-center justify-center rounded bg-muted">
-                                                {renderFormIcon(f)}
-                                            </div>
-                                        ))}
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
+                    <AnimatePresence mode="wait">
+                        <motion.tbody
+                            key={`tbody-${splitView}`}
+                            variants={staggerContainer}
+                            initial="hidden"
+                            animate="visible"
+                            className="relative"
+                        >
+                            {loading && (
+                                <tr>
+                                    <td colSpan={8} className="p-12 text-center text-muted-foreground">
+                                        <motion.div
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            className="flex flex-col items-center justify-center gap-2"
+                                        >
+                                            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                                            <span>Loading live standings...</span>
+                                        </motion.div>
+                                    </td>
+                                </tr>
+                            )}
+                            {!loading && data.length === 0 && (
+                                <tr>
+                                    <td colSpan={8} className="p-8 text-center text-muted-foreground font-medium">
+                                        No data available. Try Syncing from the Admin panel.
+                                    </td>
+                                </tr>
+                            )}
+                            {!loading && data.map((row, idx) => (
+                                <motion.tr
+                                    key={row.team}
+                                    variants={tableRowVariant}
+                                    transition={{ ...smoothSpring, delay: idx * 0.03 }}
+                                    whileHover={{
+                                        backgroundColor: "oklch(0.19 0.008 260 / 0.5)",
+                                        transition: { duration: 0.15 }
+                                    }}
+                                    className={`border-b border-border/50 transition-colors ${idx < 4 ? 'bg-primary/5' : ''}`}
+                                >
+                                    <td className="p-4 font-mono text-muted-foreground">
+                                        <motion.span
+                                            initial={{ opacity: 0, scale: 0.5 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            transition={{ delay: 0.2 + idx * 0.04 }}
+                                        >
+                                            {row.rank}
+                                        </motion.span>
+                                    </td>
+                                    <td className="p-4 font-medium text-base">{row.team}</td>
+                                    <td className="p-4 text-center text-muted-foreground">{row.played || 0}</td>
+                                    <td className="p-4 text-center text-muted-foreground">{row.won || 0}</td>
+                                    <td className="p-4 text-center text-muted-foreground">{row.drawn || 0}</td>
+                                    <td className="p-4 text-center text-muted-foreground">{row.lost || 0}</td>
+                                    <td className="p-4 text-center font-bold text-base text-primary">{row.points || 0}</td>
+                                    <td className="p-4">
+                                        <div className="flex items-center justify-end gap-2">
+                                            {row.form && row.form.map((f: string, i: number) => (
+                                                <motion.div
+                                                    key={i}
+                                                    initial={{ opacity: 0, scale: 0 }}
+                                                    animate={{ opacity: 1, scale: 1 }}
+                                                    transition={{ ...smoothSpring, delay: 0.4 + idx * 0.02 + i * 0.06 }}
+                                                    className="flex h-6 w-6 items-center justify-center rounded bg-muted"
+                                                >
+                                                    {renderFormIcon(f)}
+                                                </motion.div>
+                                            ))}
+                                        </div>
+                                    </td>
+                                </motion.tr>
+                            ))}
+                        </motion.tbody>
+                    </AnimatePresence>
                 </table>
             </div>
-        </div>
+        </motion.div>
     )
 }
