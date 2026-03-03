@@ -3,7 +3,8 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { motion } from "framer-motion"
-import { Trophy, Calendar, Users, Activity, BarChart3, Database, Swords, Crown, Medal } from "lucide-react"
+import { Trophy, Calendar, Users, Activity, BarChart3, Database, Swords, Medal } from "lucide-react"
+import { PlusOneIcon } from "@/components/plusone-icon"
 import { fadeDown, slideInLeft, smoothSpring, gentleSpring } from "@/lib/animations"
 
 export function Header() {
@@ -35,9 +36,8 @@ export function Header() {
                 whileHover={{ scale: 1.08, rotate: -4 }}
                 whileTap={{ scale: 0.95 }}
                 transition={smoothSpring}
-                className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary"
               >
-                <Crown className="h-6 w-6" />
+                <PlusOneIcon size={40} />
               </motion.div>
               <motion.span
                 variants={slideInLeft}

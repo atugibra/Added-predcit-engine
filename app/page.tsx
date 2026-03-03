@@ -6,21 +6,31 @@ import { Header } from "@/components/header"
 import { StatsOverview } from "@/components/stats-overview"
 import { StandingsTable } from "@/components/standings-table"
 import { HeadToHead } from "@/components/head-to-head"
+import { PlusOneSplash } from "@/components/plusone-icon"
 import { fadeUp, fadeIn, smoothSpring, gentleSpring, pageTransition, pageTransitionConfig } from "@/lib/animations"
 
 export default function Home() {
   const [splitView, setSplitView] = useState<"overall" | "home" | "away">("overall")
+  const [splashDone, setSplashDone] = useState(false)
 
   return (
-    <motion.div
-      variants={pageTransition}
-      initial="initial"
-      animate="animate"
-      exit="exit"
-      transition={pageTransitionConfig}
-      className="min-h-screen bg-background bg-fixed bg-gradient-to-b from-background via-background/95 to-muted/20"
-    >
-      <Header />
+    <>
+      {/* PlusOne animated splash -- first thing on screen */}
+      <AnimatePresence>
+        {!splashDone && (
+          <PlusOneSplash onComplete={() => setSplashDone(true)} />
+        )}
+      </AnimatePresence>
+
+      <motion.div
+        variants={pageTransition}
+        initial="initial"
+        animate={splashDone ? "animate" : "initial"}
+        exit="exit"
+        transition={pageTransitionConfig}
+        className="min-h-screen bg-background bg-fixed bg-gradient-to-b from-background via-background/95 to-muted/20"
+      >
+        <Header />
 
       <main className="mx-auto max-w-5xl p-4 lg:p-6">
         {/* Stats Overview */}
@@ -127,6 +137,7 @@ export default function Home() {
           </p>
         </div>
       </motion.footer>
-    </motion.div>
+      </motion.div>
+    </>
   )
 }
