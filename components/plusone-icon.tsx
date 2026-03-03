@@ -216,12 +216,12 @@ export function PlusOneSplash({ onComplete }: { onComplete: () => void }) {
             PlusOne Analytics
           </span>
           <motion.span
-            className="text-xs font-medium text-muted-foreground tracking-widest uppercase"
-            initial={{ opacity: 0, letterSpacing: "0.3em" }}
-            animate={{ opacity: 1, letterSpacing: "0.15em" }}
+            className="text-sm font-semibold italic text-primary/80 tracking-wide"
+            initial={{ opacity: 0, letterSpacing: "0.3em", y: 6 }}
+            animate={{ opacity: 1, letterSpacing: "0.05em", y: 0 }}
             transition={{ duration: 0.8, delay: 1.6, ease: "easeOut" }}
           >
-            Prediction Engine
+            {"Impossible, It's Possible"}
           </motion.span>
         </motion.div>
 
